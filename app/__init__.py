@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -12,8 +13,14 @@ jwt = JWTManager()
 
 def create_app(config_class='config.Config'):
     """Creates and configures an instance of the Flask application."""
+
     app = Flask(__name__)
-    CORS(app)
+    frontend_url = os.environ.get('FRONTEND_URL')
+    if frontend_url:
+        CORS(app, resources={r"/*": {"origins": frontend_url}})
+    else:
+        # Fallback for local development if FRONTEND_URL is not set
+        CORS(app)
     app.config.from_object(config_class)
 
     # Initialize extensions with the app
